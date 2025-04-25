@@ -1,0 +1,259 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Humanizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 20px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #e0ffe0;
+      border-left: 5px solid #0a0;
+      border-radius: 5px;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Text Humanizer</h1>
+  <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+  <br>
+  <button onclick="humanize()">Humanize Text</button>
+
+  <div id="result" class="result" style="display:none;">
+    <h3>Humanized Text:</h3>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    async function humanize() {
+      const text = document.getElementById("inputText").value.trim();
+      const resultDiv = document.getElementById("result");
+      const outputDiv = document.getElementById("output");
+      
+      if (!text) {
+        alert("Please enter some text first!");
+        return;
+      }
+
+      // Clear previous results and show loading
+      outputDiv.innerHTML = '<p class="loading">Processing your text...</p>';
+      resultDiv.style.display = "block";
+
+      try {
+        const response = await fetch("/humanize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text: text })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        outputDiv.innerHTML = `<p>${data.humanized}</p>`;
+      } catch (error) {
+        outputDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        console.error("Error:", error);
+      }
+    }
+  </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Text Humanizer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #f8f9fa, #e0f7fa);
+      color: #333;
+    }
+
+    .container {
+      max-width: 1100px; /* Wider layout */
+      margin: 50px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 50px; /* More spacious */
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+
+    p.description {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    select, textarea {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 200px; /* More vertical space */
+    }
+
+    button {
+      background-color: #43a047;
+      color: white;
+      padding: 14px 28px;
+      margin-top: 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      display: block;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #388e3c;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 25px;
+      background-color: #f1f8e9;
+      border-left: 5px solid #7cb342;
+      border-radius: 8px;
+      font-size: 17px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .loading {
+      color: #888;
+      font-style: italic;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌟 AI Text Humanizer</h1>
+    <p class="description">Transform boring AI text into smooth, natural-sounding human language ✨</p>
+
+    <label for="audience">Select Tone / Audience:</label>
+    <select id="audience">
+      <option value="default">Default (Natural & Human)</option>
+      <option value="business">Business</option>
+      <option value="academic">Academic</option>
+      <option value="gen_z">Gen Z</option>
+    </select>
+
+    <label for="inputText">Enter your text:</label>
+    <textarea id="inputText" placeholder="Paste your AI-generated text here..."></textarea>
+
+    <button onclick="humanize()">🚀 Humanize Text</button>
+
+    <div id="result" class="result" style="display:none;">
+      <h3>✅ Humanized Text:</h3>
+      <div id="output"></div>
+    </div>
+  </div>
+
+  <script>
+    async function humanize() {
+      const text = document.getElementById("inputText").value.trim();
+      const audience = document.getElementById("audience").value;
+      const resultDiv = document.getElementById("result");
+      const outputDiv = document.getElementById("output");
+
+      if (!text) {
+        alert("Please enter some text first!");
+        return;
+      }
+
+      outputDiv.innerHTML = '<p class="loading">✨ Working magic on your text...</p>';
+      resultDiv.style.display = "block";
+
+      try {
+        const response = await fetch("/humanize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text: text,
+            audience: audience
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        outputDiv.innerHTML = `<p>${data.humanized}</p>`;
+      } catch (error) {
+        outputDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+        console.error("Error:", error);
+      }
+    }
+  </script>
+</body>
+</html>
