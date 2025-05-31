@@ -8,7 +8,6 @@ router = APIRouter()
 
 class HumanizeInput(BaseModel):
     text: str
-    audience: Optional[str] = "default"  # fallback if not provided
 
 
 @router.post("/humanize")
@@ -17,7 +16,6 @@ async def humanize_text_endpoint(input_data: HumanizeInput):
         # Call your humanizer function with just the text
         humanized = humanize_text(
             input_data.text,
-            input_data.audience 
         )
         return {
             "original": input_data.text, 

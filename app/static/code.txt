@@ -18,7 +18,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
       color: #1f2937;
-      overflow: hidden; /* Prevent full-page scrolling */
+      overflow: hidden; /* prevent whole‐page scrolling */
     }
 
     .container {
@@ -27,17 +27,19 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: 16px; /* slightly reduced padding */
     }
 
     /* ===== HEADER (Title + Subtitle) ===== */
     .header {
       text-align: center;
-      margin-bottom: 16px; /* Reduced bottom margin so header sits higher */
+      margin-bottom: 16px;
+      /* Removed extra top/bottom padding so it sits “higher.” */
     }
 
+    /* Make the <h1> a bit smaller so it sits above the panels */
     h1 {
-      font-size: 2.0em;   /* Slightly smaller */
+      font-size: 2.0em;   /* was 2.2em; now even a tad smaller */
       font-weight: 800;
       background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
       -webkit-background-clip: text;
@@ -49,17 +51,17 @@
 
     p.description {
       color: rgba(255, 255, 255, 0.9);
-      font-size: 1.2em;
+      font-size: 1.2em;  /* slightly smaller */
       font-weight: 300;
     }
 
-    /* ===== MAIN GRID (Input + Output Panels) ===== */
+    /* ===== MAIN CONTENT GRID ===== */
     .main-content {
       flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      height: calc(100% - 64px); /* Subtract header’s height */
+      height: calc(100% - 64px); /* subtract header area (~64px) */
     }
 
     @media (max-width: 1200px) {
@@ -88,7 +90,7 @@
       }
     }
 
-    /* ===== PANEL BASE STYLES ===== */
+    /* ===== PANELS ===== */
     .panel {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
@@ -96,11 +98,12 @@
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
 
+      /* Make each panel occupy its full grid‐cell height */
       display: flex;
       flex-direction: column;
       height: 100%;
       overflow: hidden;
-      padding: 24px;
+      padding: 24px; /* unified padding */
     }
 
     .input-panel {
@@ -130,9 +133,35 @@
       font-size: 0.9em;
     }
 
-    /* ===== INPUT PANEL CONTROLS ===== */
+    /* ===== FORM CONTROLS ===== */
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-size: 1em;
+    }
+
+    select {
+      width: 100%;
+      font-size: 15px;
+      padding: 10px 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      background: white;
+      color: #374151;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
     textarea {
-      flex: 1; /* Takes all available vertical space */
+      flex: 1; /* take all remaining vertical space */
       font-size: 15px;
       padding: 16px;
       border: 2px solid #e5e7eb;
@@ -156,7 +185,7 @@
       color: #9ca3af;
     }
 
-    /* ===== BUTTON STYLES ===== */
+    /* ===== BUTTONS ===== */
     button {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       color: white;
@@ -197,7 +226,7 @@
 
     /* ===== OUTPUT CONTENT (scrollable) ===== */
     .output-content {
-      flex: 1; /* Fill vertical space between header and bottom button */
+      flex: 1; /* fill vertical space between header and bottom button */
       padding: 16px;
       background: #f8fafc;
       border: 2px solid #e2e8f0;
@@ -205,14 +234,15 @@
       font-size: 15px;
       line-height: 1.7;
       white-space: pre-wrap;
-      overflow-y: auto; /* Only this area scrolls */
+      overflow-y: auto; /* ONLY this area scrolls */
       color: #334155;
     }
 
-    /* ===== BOTTOM BUTTON CONTAINER (fixed height) ===== */
+    /* ===== PANEL BOTTOM (holds the button) ===== */
     .panel-bottom {
       margin-top: 16px;
-      height: 48px; /* Same in both panels → Y-coordinate alignment */
+      /* Fixed height so that buttons in both panels sit on same Y axis */
+      height: 48px;
       display: flex;
       align-items: center;
     }
@@ -267,6 +297,7 @@
     .output-content::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
   </style>
 </head>
 <body>
@@ -277,7 +308,7 @@
       <p class="description">Transform AI text into natural, human-like language</p>
     </div>
 
-    <!-- ===== MAIN PANELS ===== -->
+    <!-- ===== MAIN GRID (Input + Output) ===== -->
     <div class="main-content">
       <!-- ==================== INPUT PANEL ==================== -->
       <div class="panel input-panel">
@@ -286,14 +317,21 @@
           <div class="panel-subtitle">Paste your AI-generated content here</div>
         </div>
 
-        <!-- Removed the “Select Tone / Audience” dropdown entirely -->
+        <label for="audience">Select Tone / Audience:</label>
+        <select id="audience">
+          <option value="default">Default (Natural &amp; Human)</option>
+          <option value="business">Business Professional</option>
+          <option value="academic">Academic &amp; Formal</option>
+          <option value="gen_z">Gen Z &amp; Casual</option>
+        </select>
+
         <textarea
           id="inputText"
           placeholder="Paste your AI-generated text here and watch the magic happen..."
         ></textarea>
 
         <div class="panel-bottom">
-          <!-- “Humanize Text” button, pinned to bottom of input panel -->
+          <!-- “Humanize Text” button, fixed at bottom of input‐panel -->
           <button type="button" onclick="humanize()">🚀 Humanize Text</button>
         </div>
       </div>
@@ -305,13 +343,13 @@
           <div class="panel-subtitle">Your transformed, natural text</div>
         </div>
 
-        <!-- #result holds loading / error / final text; scrollable -->
+        <!-- #result holds loading / error / final text; this area scrolls -->
         <div id="result" class="output-content">
           <div class="loading">Your humanized text will appear here...</div>
         </div>
 
         <div class="panel-bottom">
-          <!-- Copy button hidden until text arrives -->
+          <!-- Copy button initially hidden; will be shown after we get a response -->
           <button
             id="copyBtn"
             type="button"
@@ -330,10 +368,12 @@
   <script>
     async function humanize() {
       const textArea = document.getElementById("inputText");
+      const audienceSelect = document.getElementById("audience");
       const outputDiv = document.getElementById("result");
       const copyBtn = document.getElementById("copyBtn");
 
       const text = textArea.value.trim();
+      const audience = audienceSelect.value;
 
       if (!text) {
         alert("Please enter some text first!");
@@ -356,8 +396,7 @@
           headers: {
             "Content-Type": "application/json",
           },
-          // Now we only send { text }, since we dropped “audience”
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, audience }),
         });
 
         if (!response.ok) {
@@ -419,7 +458,7 @@
       }
     });
 
-    // Auto-resize the input textarea as you type
+    // Auto‐resize the input textarea as you type
     document.getElementById("inputText").addEventListener("input", function () {
       this.style.height = "auto";
       this.style.height = this.scrollHeight + "px";
