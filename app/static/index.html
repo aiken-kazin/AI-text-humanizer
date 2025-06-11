@@ -161,19 +161,20 @@
     button {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       color: white;
-      padding: 14px 28px;
-      font-size: 15px;
+      padding: 8px 16px; /* Further reduced */
+      font-size: 13px; /* Further reduced */
       font-weight: 600;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px; /* Smaller radius */
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      max-width: 200px; /* Limit button width */
     }
 
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
     }
 
     button:active {
@@ -182,14 +183,15 @@
 
     .copy-button {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
       margin-top: 0;
       flex-shrink: 0;
       width: 100%;
+      max-width: none; /* Allow full width for output buttons */
     }
 
     .copy-button:hover {
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
     .copy-button.copied {
@@ -198,14 +200,85 @@
 
     .detector-button {
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
       margin-top: 8px;
       flex-shrink: 0;
       width: 100%;
+      max-width: none; /* Allow full width for output buttons */
     }
 
     .detector-button:hover {
-      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    /* ===== FILE UPLOAD STYLES ===== */
+    .file-upload-area {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+    }
+
+    .file-input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+      min-height: 32px;
+      max-width: 140px; /* Limit width */
+    }
+
+    .file-input-label:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    .clear-button {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+      padding: 8px 16px;
+      max-width: 100px; /* Limit width */
+    }
+
+    .clear-button:hover {
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .file-info {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 8px;
+      padding: 0 4px;
+      text-align: center;
     }
 
     /* ===== OUTPUT CONTENT CONTAINER ===== */
@@ -432,7 +505,7 @@
       <div class="panel input-panel">
         <div class="panel-header">
           <div class="panel-title">📝 Input Text</div>
-          <div class="panel-subtitle">Paste your AI-generated content here</div>
+          <div class="panel-subtitle">Paste your AI-generated content here or upload a file</div>
         </div>
 
         <textarea
@@ -441,7 +514,21 @@
         ></textarea>
 
         <div class="panel-bottom">
-          <button type="button" onclick="humanize()">🚀 Humanize Text</button>
+          <!-- All buttons in one row -->
+          <div class="buttons-row">
+            <button type="button" onclick="humanize()">🚀 Humanize Text</button>
+            
+            <div class="file-input-wrapper">
+              <input type="file" id="fileInput" class="file-input" accept=".txt,.doc,.docx,.pdf" onchange="handleFileUpload(event)">
+              <label for="fileInput" class="file-input-label">
+                📁 Choose File
+              </label>
+            </div>
+            
+            <button type="button" class="clear-button" onclick="clearText()">🗑️ Clear</button>
+          </div>
+          
+          <div id="fileInfo" class="file-info" style="display: none;"></div>
         </div>
       </div>
 
@@ -520,11 +607,96 @@
       }
     });
 
+    // File upload handler
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      updateDebugInfo('File selected: ' + file.name);
+
+      const fileInfo = document.getElementById('fileInfo');
+      const textArea = document.getElementById('inputText');
+      
+      // Show file info
+      fileInfo.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      fileInfo.style.display = 'block';
+
+      try {
+        let text = '';
+        
+        if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+          // Handle plain text files
+          text = await file.text();
+        } else if (file.name.endsWith('.docx')) {
+          // For DOCX files, show a message since mammoth requires external library
+          textArea.value = '⚠️ DOCX files are not yet supported. Please copy and paste the text manually or use a .txt file.';
+          fileInfo.textContent += ' - DOCX support coming soon!';
+          return;
+        } else if (file.name.endsWith('.pdf')) {
+          // For PDF files, show a message since PDF parsing is complex
+          textArea.value = '⚠️ PDF files are not yet supported. Please copy and paste the text manually or use a .txt file.';
+          fileInfo.textContent += ' - PDF support coming soon!';
+          return;
+        } else {
+          // Try to read as text for other formats
+          text = await file.text();
+        }
+
+        // Set the text in the textarea
+        textArea.value = text;
+        
+        // Trigger the auto-resize
+        textArea.style.height = 'auto';
+        textArea.style.height = textArea.scrollHeight + 'px';
+        
+        updateDebugInfo('File loaded successfully, text length: ' + text.length);
+        fileInfo.textContent += ' - ✅ Loaded successfully!';
+
+      } catch (error) {
+        updateDebugInfo('Error reading file: ' + error.message);
+        fileInfo.textContent = `❌ Error reading ${file.name}: ${error.message}`;
+        fileInfo.style.color = '#ef4444';
+        console.error('File reading error:', error);
+      }
+    }
+
+    // Clear text and file
+    function clearText() {
+      const textArea = document.getElementById('inputText');
+      const fileInput = document.getElementById('fileInput');
+      const fileInfo = document.getElementById('fileInfo');
+      const outputDiv = document.getElementById('result');
+      const copyBtn = document.getElementById('copyBtn');
+      const detectorBtn = document.getElementById('detectorBtn');
+      const detectorSection = document.getElementById('detectorSection');
+      
+      // Clear all inputs and outputs
+      textArea.value = '';
+      fileInput.value = '';
+      fileInfo.style.display = 'none';
+      fileInfo.style.color = '#6b7280'; // Reset color
+      
+      // Reset output area
+      outputDiv.innerHTML = '<div class="loading">Your humanized text will appear here...</div>';
+      copyBtn.style.display = 'none';
+      detectorBtn.style.display = 'none';
+      detectorSection.style.display = 'none';
+      
+      // Reset stored text
+      currentHumanizedText = '';
+      
+      // Reset textarea height
+      textArea.style.height = 'auto';
+      
+      updateDebugInfo('All content cleared');
+    }
+
     async function humanize() {
       const textArea = document.getElementById("inputText");
       const outputDiv = document.getElementById("result");
       const copyBtn = document.getElementById("copyBtn");
       const detectorBtn = document.getElementById("detectorBtn");
+      const detectorSection = document.getElementById("detectorSection");
 
       const text = textArea.value.trim();
 
@@ -534,6 +706,9 @@
       }
 
       updateDebugInfo('Starting humanize process...');
+
+      // Hide detector section when starting new humanization
+      detectorSection.style.display = "none";
 
       // Clear previous results completely
       outputDiv.innerHTML = "";

@@ -18,7 +18,7 @@ def detect_ai(text):
         },
         {
             "name": "Another Detector",
-            "probability": 0.5  # 85% AI probability
+            "probability": 0.96  # 85% AI probability
         },
         {
             "name": "Another Detector ",
