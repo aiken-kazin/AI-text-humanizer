@@ -11,10 +11,20 @@ def detect_ai(text):
     )
 
     # return str(round(float(response.json()['score']),3) * 100) + "% AI generated"
-    return [{
+    return [
+        {
             "name": "GPTZero",
             "probability": 0.85  # 85% AI probability
-        },]
+        },
+        {
+            "name": "Another Detector",
+            "probability": 0.5  # 85% AI probability
+        },
+        {
+            "name": "Another Detector ",
+            "probability": 0.3  # 85% AI probability
+        }
+    ]
 
 
 
