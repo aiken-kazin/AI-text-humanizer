@@ -18,12 +18,11 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
       color: #1f2937;
-      overflow-y: auto; /* Allow page scrolling */
-      min-height: 100vh;
+      overflow: hidden; /* Prevent full-page scrolling */
     }
 
     .container {
-      min-height: 100vh;
+      height: 100%;
       max-width: 1400px;
       margin: 0 auto;
       display: flex;
@@ -56,11 +55,11 @@
 
     /* ===== MAIN GRID (Input + Output Panels) ===== */
     .main-content {
+      flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      min-height: 70vh; /* Fixed height for the main panels */
-      margin-bottom: 24px;
+      height: calc(100% - 64px); /* Subtract header's height */
     }
 
     @media (max-width: 1200px) {
@@ -208,14 +207,6 @@
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
-    /* ===== OUTPUT CONTENT CONTAINER ===== */
-    .output-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
     /* ===== OUTPUT CONTENT (scrollable) ===== */
     .output-content {
       flex: 1; /* Fill vertical space between header and bottom button */
@@ -228,7 +219,6 @@
       white-space: pre-wrap;
       overflow-y: auto; /* Only this area scrolls */
       color: #334155;
-      min-height: 200px; /* Ensure minimum height */
     }
 
     /* ===== BOTTOM BUTTON CONTAINER (flexible height) ===== */
@@ -237,34 +227,11 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      flex-shrink: 0; /* Prevent buttons from shrinking */
     }
 
-    /* ===== AI DETECTOR SECTION STYLES ===== */
-    .detector-section {
-      display: none; /* Hidden by default */
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 24px;
-      margin-bottom: 24px;
-      animation: slideIn 0.5s ease-out;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
+    /* ===== AI DETECTOR TABLE STYLES ===== */
     .detector-results {
+      margin-top: 20px;
       padding: 16px;
       background: #ffffff;
       border: 2px solid #e2e8f0;
@@ -385,40 +352,23 @@
 
     /* ===== CUSTOM SCROLLBAR for output ===== */
     .output-content::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
     .output-content::-webkit-scrollbar-track {
       background: #f1f5f9;
-      border-radius: 4px;
+      border-radius: 3px;
     }
     .output-content::-webkit-scrollbar-thumb {
       background: #cbd5e1;
-      border-radius: 4px;
+      border-radius: 3px;
     }
     .output-content::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
-    }
-
-    /* ===== DEBUG STYLES (temporary - remove in production) ===== */
-    .debug-info {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      z-index: 1000;
-      display: none; /* Hidden by default */
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Debug info (remove in production) -->
-    <div id="debugInfo" class="debug-info"></div>
-
     <!-- ===== HEADER ===== -->
     <div class="header">
       <h1>🌟 AI Text Humanizer</h1>
@@ -434,12 +384,14 @@
           <div class="panel-subtitle">Paste your AI-generated content here</div>
         </div>
 
+        <!-- Removed the "Select Tone / Audience" dropdown entirely -->
         <textarea
           id="inputText"
           placeholder="Paste your AI-generated text here and watch the magic happen..."
         ></textarea>
 
         <div class="panel-bottom">
+          <!-- "Humanize Text" button, pinned to bottom of input panel -->
           <button type="button" onclick="humanize()">🚀 Humanize Text</button>
         </div>
       </div>
@@ -451,11 +403,12 @@
           <div class="panel-subtitle">Your transformed, natural text</div>
         </div>
 
-        <div class="output-container">
-          <!-- #result holds loading / error / final text; scrollable -->
-          <div id="result" class="output-content">
-            <div class="loading">Your humanized text will appear here...</div>
-          </div>
+        <!-- #result holds loading / error / final text; scrollable -->
+        <div id="result" class="output-content">
+          <div class="loading">Your humanized text will appear here...</div>
+          
+          <!-- AI Detector Results will be appended here -->
+          <div id="detectorResults" style="display: none;"></div>
         </div>
 
         <div class="panel-bottom">
@@ -483,47 +436,18 @@
         </div>
       </div>
     </div>
-
-    <!-- ===== AI DETECTOR SECTION (appears at bottom) ===== -->
-    <div id="detectorSection" class="detector-section">
-      <div class="panel-header">
-        <div class="panel-title">🔍 AI Detector Analysis</div>
-        <div class="panel-subtitle">Detailed analysis of your humanized text</div>
-      </div>
-      <div id="detectorResults"></div>
-    </div>
   </div>
 
   <!-- ===== JAVASCRIPT ===== -->
   <script>
     let currentHumanizedText = '';
-    let debugMode = false; // Set to true for debugging
-
-    // Debug function
-    function updateDebugInfo(message) {
-      if (!debugMode) return;
-      const debugEl = document.getElementById('debugInfo');
-      debugEl.textContent = message;
-      debugEl.style.display = 'block';
-      console.log('DEBUG:', message);
-    }
-
-    // Toggle debug mode with Ctrl+D
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.key === 'd') {
-        e.preventDefault();
-        debugMode = !debugMode;
-        const debugEl = document.getElementById('debugInfo');
-        debugEl.style.display = debugMode ? 'block' : 'none';
-        updateDebugInfo('Debug mode: ' + (debugMode ? 'ON' : 'OFF'));
-      }
-    });
 
     async function humanize() {
       const textArea = document.getElementById("inputText");
       const outputDiv = document.getElementById("result");
       const copyBtn = document.getElementById("copyBtn");
       const detectorBtn = document.getElementById("detectorBtn");
+      const detectorResults = document.getElementById("detectorResults");
 
       const text = textArea.value.trim();
 
@@ -532,40 +456,33 @@
         return;
       }
 
-      updateDebugInfo('Starting humanize process...');
-
-      // Clear previous results completely
+      // Show "loading" inside outputDiv
       outputDiv.innerHTML = "";
-      
-      // Show loading spinner
       const spinner = document.createElement("div");
       spinner.className = "loading";
       spinner.textContent = "Processing your text...";
       outputDiv.appendChild(spinner);
 
-      // Hide buttons until we have a successful response
+      // Hide buttons and detector results until we have a successful response
       copyBtn.style.display = "none";
       detectorBtn.style.display = "none";
+      detectorResults.style.display = "none";
 
       try {
-        updateDebugInfo('Sending request to /humanize...');
-        
         const response = await fetch("/humanize", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          // Now we only send { text }, since we dropped "audience"
           body: JSON.stringify({ text }),
         });
-
-        updateDebugInfo(`Response status: ${response.status}`);
 
         if (!response.ok) {
           throw new Error(`Server responded with status ${response.status}`);
         }
 
         const data = await response.json();
-        updateDebugInfo('Received humanized text, length: ' + data.humanized.length);
 
         // Store the humanized text for detector
         currentHumanizedText = data.humanized;
@@ -578,11 +495,7 @@
         // Show buttons
         copyBtn.style.display = "block";
         detectorBtn.style.display = "block";
-        
-        updateDebugInfo('Humanize completed successfully');
       } catch (error) {
-        updateDebugInfo('Error in humanize: ' + error.message);
-        
         outputDiv.innerHTML = "";
         const errDiv = document.createElement("div");
         errDiv.className = "error";
@@ -593,37 +506,30 @@
     }
 
     async function runDetector() {
+      console.log("111111111111");
       if (!currentHumanizedText) {
         alert("No humanized text available for detection!");
         return;
       }
+      console.log("22222222222");
 
-      updateDebugInfo('Starting detector process...');
-
-      const detectorSection = document.getElementById("detectorSection");
-      const detectorResults = document.getElementById("detectorResults");
+      const detectorResults = document.getElementById("detectorResult");
       const detectorBtn = document.getElementById("detectorBtn");
       
-      // Show the detector section and scroll to it
-      detectorSection.style.display = "block";
-      setTimeout(() => {
-        detectorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-      
-      // Show loading state in the detector results area
+      // Show loading state
       detectorResults.innerHTML = "";
       const spinner = document.createElement("div");
       spinner.className = "detector-loading";
       spinner.textContent = "Running AI detection...";
       detectorResults.appendChild(spinner);
+      detectorResults.style.display = "block";
 
       // Disable button during processing
       detectorBtn.disabled = true;
       detectorBtn.textContent = "🔍 Analyzing...";
+      console.log("333333333333");
 
       try {
-        updateDebugInfo('Sending request to /detect...');
-        
         const response = await fetch("/detect", {
           method: "POST",
           headers: {
@@ -631,15 +537,16 @@
           },
           body: JSON.stringify({ text: currentHumanizedText }),
         });
-
-        updateDebugInfo(`Detect response status: ${response.status}`);
+        console.log("4444444444");
 
         if (!response.ok) {
           throw new Error(`Server responded with status ${response.status}`);
         }
+        console.log("555555555");
 
         const data = await response.json();
-        updateDebugInfo('Received detector results, count: ' + data.results.length);
+        console.log("66666666");
+        console.log("data: " + data)
 
         // Create the detector results table
         detectorResults.innerHTML = `
@@ -670,19 +577,13 @@
             </table>
           </div>
         `;
-        
-        updateDebugInfo('Detector results displayed successfully');
 
       } catch (error) {
-        updateDebugInfo('Error in detector: ' + error.message);
-        
-        // Add error message
         detectorResults.innerHTML = "";
         const errDiv = document.createElement("div");
         errDiv.className = "error";
         errDiv.textContent = `❌ Detection Error: ${error.message}`;
         detectorResults.appendChild(errDiv);
-        
         console.error("Detection Error:", error);
       } finally {
         // Re-enable button
@@ -692,13 +593,9 @@
     }
 
     async function copyText() {
+      const outputDiv = document.getElementById("result");
       const copyBtn = document.getElementById("copyBtn");
-      const textToCopy = currentHumanizedText;
-
-      if (!textToCopy) {
-        alert("No text to copy!");
-        return;
-      }
+      const textToCopy = currentHumanizedText || outputDiv.textContent || outputDiv.innerText;
 
       try {
         await navigator.clipboard.writeText(textToCopy);
