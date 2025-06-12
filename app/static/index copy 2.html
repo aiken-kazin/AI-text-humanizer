@@ -186,7 +186,8 @@
       box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
       margin-top: 0;
       flex-shrink: 0;
-      max-width: 140px; /* Same as file input button */
+      width: 100%;
+      max-width: none; /* Allow full width for output buttons */
     }
 
     .copy-button:hover {
@@ -200,9 +201,10 @@
     .detector-button {
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-      margin-top: 0; /* Remove top margin */
+      margin-top: 8px;
       flex-shrink: 0;
-      max-width: 180px; /* Slightly wider for longer text */
+      width: 100%;
+      max-width: none; /* Allow full width for output buttons */
     }
 
     .detector-button:hover {
@@ -503,7 +505,7 @@
       <div class="panel input-panel">
         <div class="panel-header">
           <div class="panel-title">📝 Input Text</div>
-          <div class="panel-subtitle">Paste your AI-generated content  or upload a file</div>
+          <div class="panel-subtitle">Paste your AI-generated content here or upload a file</div>
         </div>
 
         <textarea
@@ -545,28 +547,27 @@
         </div>
 
         <div class="panel-bottom">
-          <!-- Copy and Detector buttons in one row -->
-          <div class="buttons-row">
-            <button
-              id="copyBtn"
-              type="button"
-              class="copy-button"
-              style="display: none;"
-              onclick="copyText()"
-            >
-              📋 Copy Text
-            </button>
-            
-            <button
-              id="detectorBtn"
-              type="button"
-              class="detector-button"
-              style="display: none;"
-              onclick="runDetector()"
-            >
-              🔍 AI Detector Results
-            </button>
-          </div>
+          <!-- Copy button hidden until text arrives -->
+          <button
+            id="copyBtn"
+            type="button"
+            class="copy-button"
+            style="display: none;"
+            onclick="copyText()"
+          >
+            📋 Copy Text
+          </button>
+          
+          <!-- AI Detector button hidden until text arrives -->
+          <button
+            id="detectorBtn"
+            type="button"
+            class="detector-button"
+            style="display: none;"
+            onclick="runDetector()"
+          >
+            🔍 AI Detector Results
+          </button>
         </div>
       </div>
     </div>

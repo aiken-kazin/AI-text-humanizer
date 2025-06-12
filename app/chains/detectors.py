@@ -14,15 +14,15 @@ def detect_ai(text):
     return [
         {
             "name": "GPTZero",
-            "probability": 0.85  # 85% AI probability
+            "probability": 0.3  # 85% AI probability
         },
         {
             "name": "Another Detector",
-            "probability": 0.96  # 85% AI probability
+            "probability": 0.2  # 85% AI probability
         },
         {
             "name": "Another Detector ",
-            "probability": 0.3  # 85% AI probability
+            "probability": 0.9  # 85% AI probability
         }
     ]
 

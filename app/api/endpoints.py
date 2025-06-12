@@ -26,6 +26,9 @@ class DetectorResult(BaseModel):
 class DetectionResponse(BaseModel):
     results: List[DetectorResult]
 
+
+    
+
 @router.post("/humanize")
 async def humanize_text_endpoint(input_data: HumanizeInput):
     try:
@@ -39,41 +42,6 @@ async def humanize_text_endpoint(input_data: HumanizeInput):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# @router.post("/detect")
-# async def detect_ai_endpoint(input_data: DetectInput) -> DetectionResponse:
-#     try:
-#         # Call the AI detection function
-#         detection_results = detectors.detect_ai(input_data.text)
-        
-#         # Ensure the results are in the expected format
-#         # If detect_ai returns a different format, adjust accordingly
-#         formatted_results = []
-        
-#         # Assuming detect_ai returns a list of dictionaries with detector info
-#         # You may need to adjust this based on your actual detect_ai function output
-#         if isinstance(detection_results, list):
-#             for result in detection_results:
-#                 formatted_results.append(DetectorResult(
-#                     detector_name=result.get('name', 'Unknown Detector'),
-#                     ai_probability=result.get('probability', 0.0)
-#                 ))
-#         elif isinstance(detection_results, dict):
-#             # If it returns a single result or dict format
-#             for detector_name, probability in detection_results.items():
-#                 formatted_results.append(DetectorResult(
-#                     detector_name=detector_name,
-#                     ai_probability=probability
-#                 ))
-#         else:
-#             # If it's a different format, you'll need to adjust this
-#             raise ValueError("Unexpected detection results format")
-        
-#         return DetectionResponse(results=formatted_results)
-        
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
-
 
 
 @router.post("/detect")
@@ -144,12 +112,50 @@ async def detect_ai_endpoint(input_data: DetectInput) -> DetectionResponse:
         print(f"Detection error: {str(e)}")  # Debug log
         raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
 
-# Test endpoint to verify the detection endpoint is working
-@router.get("/detect/test")
-async def test_detect_endpoint():
-    """Test endpoint to verify detection functionality"""
-    return DetectionResponse(results=[
-        DetectorResult(detector_name="Test Detector 1", ai_probability=0.85),
-        DetectorResult(detector_name="Test Detector 2", ai_probability=0.42),
-        DetectorResult(detector_name="Test Detector 3", ai_probability=0.91)
-    ])
+# # Test endpoint to verify the detection endpoint is working
+# @router.get("/detect/test")
+# async def test_detect_endpoint():
+#     """Test endpoint to verify detection functionality"""
+#     return DetectionResponse(results=[
+#         DetectorResult(detector_name="Test Detector 1", ai_probability=0.85),
+#         DetectorResult(detector_name="Test Detector 2", ai_probability=0.42),
+#         DetectorResult(detector_name="Test Detector 3", ai_probability=0.91)
+#     ])
+    
+
+
+
+# @router.post("/detect")
+# async def detect_ai_endpoint(input_data: DetectInput) -> DetectionResponse:
+#     try:
+#         # Call the AI detection function
+#         detection_results = detectors.detect_ai(input_data.text)
+        
+#         # Ensure the results are in the expected format
+#         # If detect_ai returns a different format, adjust accordingly
+#         formatted_results = []
+        
+#         # Assuming detect_ai returns a list of dictionaries with detector info
+#         # You may need to adjust this based on your actual detect_ai function output
+#         if isinstance(detection_results, list):
+#             for result in detection_results:
+#                 formatted_results.append(DetectorResult(
+#                     detector_name=result.get('name', 'Unknown Detector'),
+#                     ai_probability=result.get('probability', 0.0)
+#                 ))
+#         elif isinstance(detection_results, dict):
+#             # If it returns a single result or dict format
+#             for detector_name, probability in detection_results.items():
+#                 formatted_results.append(DetectorResult(
+#                     detector_name=detector_name,
+#                     ai_probability=probability
+#                 ))
+#         else:
+#             # If it's a different format, you'll need to adjust this
+#             raise ValueError("Unexpected detection results format")
+        
+#         return DetectionResponse(results=formatted_results)
+        
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
+
